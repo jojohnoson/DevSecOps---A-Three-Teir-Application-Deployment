@@ -27,6 +27,10 @@ RUN chown -R nginx:nginx /usr/share/nginx/html && \
 
 USER nginx
 
+<<<<<<< HEAD
 EXPOSE 8080
+=======
+EXPOSE 80
+>>>>>>> main
 
 CMD ["nginx", "-g", "daemon off;"]

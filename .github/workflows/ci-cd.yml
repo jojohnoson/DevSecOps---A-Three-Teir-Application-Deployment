@@ -29,7 +29,10 @@ jobs:
   lint:
     name: "🔍 Lint Code"
     runs-on: ubuntu-latest
+<<<<<<< HEAD
     continue-on-error: true
+=======
+>>>>>>> main
     strategy:
       matrix:
         component: [backend, frontend]
@@ -96,6 +99,11 @@ jobs:
     strategy:
       matrix:
         component: [backend, frontend]
+<<<<<<< HEAD
+=======
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+>>>>>>> main
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -140,7 +148,10 @@ jobs:
   image-scan:
     name: "🔬 Scan ${{ matrix.component }} Image"
     runs-on: ubuntu-latest
+<<<<<<< HEAD
     continue-on-error: true
+=======
+>>>>>>> main
     needs: build
     strategy:
       matrix:
@@ -170,7 +181,10 @@ jobs:
   iac-scan:
     name: "🏗️ IaC Security Scan"
     runs-on: ubuntu-latest
+<<<<<<< HEAD
     continue-on-error: true
+=======
+>>>>>>> main
     needs: lint
     steps:
       - name: Checkout code
@@ -199,7 +213,10 @@ jobs:
   dockerfile-lint:
     name: "📋 Dockerfile Lint"
     runs-on: ubuntu-latest
+<<<<<<< HEAD
     continue-on-error: true
+=======
+>>>>>>> main
     strategy:
       matrix:
         component: [backend, frontend]
@@ -220,7 +237,12 @@ jobs:
   update-manifest:
     name: "🚀 Update K8s Manifest"
     runs-on: ubuntu-latest
+<<<<<<< HEAD
     if: github.event_name == 'push' 
+=======
+    needs: [build, image-scan, iac-scan, dockerfile-lint]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+>>>>>>> main
     permissions:
       contents: write # Needed to push manifest changes
     steps:
@@ -237,6 +259,7 @@ jobs:
         run: |
           IMAGE_TAG=${{ steps.sha.outputs.short }}
 
+<<<<<<< HEAD
           # Find the line number of the backend container image
           # (the image: line right after `- name: backend`)
           BACKEND_LINE=$(awk '/- name: backend/{found=1} found && /image:/{print NR; exit}' k8s/jerney.yaml)
@@ -251,6 +274,18 @@ jobs:
 
           echo "✅ Updated images to tag: ${IMAGE_TAG}"
           grep -n "image:" k8s/jerney.yaml
+=======
+          # Update backend image
+          sed -i "s|image: .*jerney-backend.*|image: ${BACKEND_IMAGE}:${IMAGE_TAG}|g" k8s/jerney.yaml
+          sed -i "s|image: BACKEND_IMAGE_PLACEHOLDER|image: ${BACKEND_IMAGE}:${IMAGE_TAG}|g" k8s/jerney.yaml
+
+          # Update frontend image
+          sed -i "s|image: .*jerney-frontend.*|image: ${FRONTEND_IMAGE}:${IMAGE_TAG}|g" k8s/jerney.yaml
+          sed -i "s|image: FRONTEND_IMAGE_PLACEHOLDER|image: ${FRONTEND_IMAGE}:${IMAGE_TAG}|g" k8s/jerney.yaml
+
+          echo "✅ Updated images to tag: ${IMAGE_TAG}"
+          grep "image:" k8s/jerney.yaml
+>>>>>>> main
 
       - name: Commit and push manifest update
         run: |
